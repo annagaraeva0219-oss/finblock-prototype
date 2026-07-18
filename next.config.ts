@@ -1,9 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  output: "export",
+  images: { unoptimized: true },
+  typescript: { ignoreBuildErrors: true },
   reactStrictMode: false,
 };
 
