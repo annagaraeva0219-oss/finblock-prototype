@@ -61,6 +61,9 @@ interface AppState {
   exportPaymentOrder: (orderId: string) => void
 
   updateRegisterEntryStatus: (entryId: string, status: RegisterStatus) => void
+
+  addCalendarEntry: (data: Omit<CalendarEntry, 'id'>) => void
+  updatePlanRow: (orgId: string, category: string, field: 'plan' | 'actual', value: number) => void
 }
 
 let requestCounter = 12
@@ -281,6 +284,29 @@ export const useAppStore = create<AppState>((set, get) => ({
     set((state) => ({
       registerEntries: state.registerEntries.map((e) =>
         e.id === entryId ? { ...e, status } : e
+      ),
+    }))
+  },
+
+  addCalendarEntry: (data) => {
+    const entry: CalendarEntry = {
+      ...data,
+      id: `cal-${Date.now()}`,
+    }
+    set((state) => ({ calendarEntries: [...state.calendarEntries, entry] }))
+  },
+
+  updatePlanRow: (orgId, category, field, value) => {
+    set((state) => ({
+      financialPlan: state.financialPlan.map((fp) =>
+        fp.organizationId === orgId
+          ? {
+              ...fp,
+              rows: fp.rows.map((r) =>
+                r.category === category ? { ...r, [field]: value } : r
+              ),
+            }
+          : fp
       ),
     }))
   },
