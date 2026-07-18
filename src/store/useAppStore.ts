@@ -84,7 +84,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   bankStatements: bs,
   calendarEntries: ce,
 
-  setCurrentScreen: (screen) => set({ currentScreen: screen, selectedRequestId: null }),
+  setCurrentScreen: (screen) => set((s) => ({
+    currentScreen: screen,
+    ...(screen !== s.currentScreen ? { selectedRequestId: null } : {}),
+  })),
   setSelectedRequestId: (id) => set({ selectedRequestId: id }),
   setCurrentOrgId: (id) => set({ currentOrgId: id }),
   toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),

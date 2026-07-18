@@ -138,10 +138,7 @@ export default function PaymentRequestsScreen() {
                   <TableRow
                     key={pr.id}
                     className="cursor-pointer"
-                    onClick={() => {
-                      setSelectedRequestId(pr.id)
-                      setCurrentScreen('payment-requests')
-                    }}
+                    onClick={() => setSelectedRequestId(pr.id)}
                   >
                     <TableCell className="font-medium">{pr.number}</TableCell>
                     <TableCell className="whitespace-nowrap">{pr.date}</TableCell>
@@ -168,7 +165,6 @@ export default function PaymentRequestsScreen() {
                         onClick={(e) => {
                           e.stopPropagation()
                           setSelectedRequestId(pr.id)
-                          setCurrentScreen('payment-requests')
                         }}
                       >
                         Открыть

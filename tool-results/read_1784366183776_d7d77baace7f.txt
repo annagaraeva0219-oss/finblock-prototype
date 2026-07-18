@@ -1,0 +1,898 @@
+     1→// Mock data for FinBlock — Группа компаний «Стэк»
+     2→
+     3→export interface Organization {
+     4→  id: string
+     5→  name: string
+     6→  inn: string
+     7→  kpp: string
+     8→  bankAccount: string
+     9→  bankName: string
+    10→  bik: string
+    11→}
+    12→
+    13→export interface Counterparty {
+    14→  id: string
+    15→  name: string
+    16→  inn: string
+    17→  kpp: string
+    18→  bankAccount: string
+    19→  bankName: string
+    20→  bik: string
+    21→}
+    22→
+    23→export type RequestStatus = 'Новая' | 'На согласовании' | 'Согласованная' | 'Не согласована'
+    24→export type OrderStatus = 'Сформировано' | 'Экспортировано'
+    25→export type RegisterStatus = 'Ожидает' | 'В поручении' | 'Исполнено'
+    26→
+    27→export interface PaymentRequest {
+    28→  id: string
+    29→  number: string
+    30→  date: string
+    31→  organizationId: string
+    32→  counterpartyId: string
+    33→  counterpartyName: string
+    34→  amount: number
+    35→  purpose: string
+    36→  status: RequestStatus
+    37→  expenseCategory: string
+    38→  source: 'manual' | 'auto'
+    39→  invoiceId?: string
+    40→  approvalHistory: { date: string; action: string; user: string }[]
+    41→}
+    42→
+    43→export interface Invoice {
+    44→  id: string
+    45→  number: string
+    46→  date: string
+    47→  counterpartyId: string
+    48→  counterpartyName: string
+    49→  inn: string
+    50→  amount: number
+    51→  purpose: string
+    52→  organizationId: string
+    53→  expenseCategory: string
+    54→  status: 'Обработан' | 'Ожидает'
+    55→  linkedRequestId?: string
+    56→}
+    57→
+    58→export interface RegisterEntry {
+    59→  id: string
+    60→  requestId: string
+    61→  requestNumber: string
+    62→  date: string
+    63→  counterpartyName: string
+    64→  amount: number
+    65→  organizationId: string
+    66→  status: RegisterStatus
+    67→  orderId?: string
+    68→}
+    69→
+    70→export interface PaymentOrder {
+    71→  id: string
+    72→  number: string
+    73→  date: string
+    74→  registerEntryIds: string[]
+    75→  requestNumbers: string[]
+    76→  payerId: string
+    77→  amount: number
+    78→  status: OrderStatus
+    79→}
+    80→
+    81→export interface FinancialPlanRow {
+    82→  category: string
+    83→  plan: number
+    84→  actual: number
+    85→}
+    86→
+    87→export interface FinancialPlan {
+    88→  organizationId: string
+    89→  month: number
+    90→  year: number
+    91→  rows: FinancialPlanRow[]
+    92→}
+    93→
+    94→export interface BankTransaction {
+    95→  id: string
+    96→  date: string
+    97→  document: string
+    98→  correspondentAccount: string
+    99→  debit: number
+   100→  credit: number
+   101→  purpose: string
+   102→}
+   103→
+   104→export interface BankStatement {
+   105→  organizationId: string
+   106→  accountNumber: string
+   107→  period: string
+   108→  openingBalance: number
+   109→  transactions: BankTransaction[]
+   110→  closingBalance: number
+   111→}
+   112→
+   113→export interface CalendarEntry {
+   114→  date: string
+   115→  plannedAmount: number
+   116→  actualAmount: number
+   117→  paymentCount: number
+   118→  status: 'planned' | 'pending' | 'completed'
+   119→  organizationId: string
+   120→  description: string
+   121→}
+   122→
+   123→export const organizations: Organization[] = [
+   124→  {
+   125→    id: 'org-1',
+   126→    name: 'ООО "Стэк-Строй"',
+   127→    inn: '7712345678',
+   128→    kpp: '771201001',
+   129→    bankAccount: '40702810900000123456',
+   130→    bankName: 'ПАО "Сбербанк"',
+   131→    bik: '044525225',
+   132→  },
+   133→  {
+   134→    id: 'org-2',
+   135→    name: 'ООО "Стэк-Инжиниринг"',
+   136→    inn: '7712345679',
+   137→    kpp: '771202001',
+   138→    bankAccount: '40702810900000234567',
+   139→    bankName: 'ПАО "Сбербанк"',
+   140→    bik: '044525225',
+   141→  },
+   142→  {
+   143→    id: 'org-3',
+   144→    name: 'ООО "Стэк-Монтаж"',
+   145→    inn: '7712345680',
+   146→    kpp: '771203001',
+   147→    bankAccount: '40702810900000345678',
+   148→    bankName: 'АО "ВТБ"',
+   149→    bik: '044525041',
+   150→  },
+   151→  {
+   152→    id: 'org-4',
+   153→    name: 'ООО "Стэк-Логистика"',
+   154→    inn: '7712345681',
+   155→    kpp: '771204001',
+   156→    bankAccount: '40702810900000456789',
+   157→    bankName: 'АО "ВТБ"',
+   158→    bik: '044525041',
+   159→  },
+   160→  {
+   161→    id: 'org-5',
+   162→    name: 'ООО "Стэк-Проект"',
+   163→    inn: '7712345682',
+   164→    kpp: '771205001',
+   165→    bankAccount: '40702810900000567890',
+   166→    bankName: 'АО "Альфа-Банк"',
+   167→    bik: '044525593',
+   168→  },
+   169→]
+   170→
+   171→export const counterparties: Counterparty[] = [
+   172→  {
+   173→    id: 'cp-1',
+   174→    name: 'ООО "БетонМастер"',
+   175→    inn: '5012345678',
+   176→    kpp: '501201001',
+   177→    bankAccount: '40702810900001000001',
+   178→    bankName: 'ПАО "Сбербанк"',
+   179→    bik: '044525225',
+   180→  },
+   181→  {
+   182→    id: 'cp-2',
+   183→    name: 'ООО "МеталлСнабПро"',
+   184→    inn: '5012345679',
+   185→    kpp: '501202001',
+   186→    bankAccount: '40702810900002000002',
+   187→    bankName: 'ПАО "Сбербанк"',
+   188→    bik: '044525225',
+   189→  },
+   190→  {
+   191→    id: 'cp-3',
+   192→    name: 'ООО "Арматура-Трейд"',
+   193→    inn: '5012345680',
+   194→    kpp: '501203001',
+   195→    bankAccount: '40702810900003000003',
+   196→    bankName: 'АО "ВТБ"',
+   197→    bik: '044525041',
+   198→  },
+   199→  {
+   200→    id: 'cp-4',
+   201→    name: 'ИП Кузнецов В.П.',
+   202→    inn: '500123456789',
+   203→    kpp: '',
+   204→    bankAccount: '40817810900004000004',
+   205→    bankName: 'АО "Альфа-Банк"',
+   206→    bik: '044525593',
+   207→  },
+   208→  {
+   209→    id: 'cp-5',
+   210→    name: 'ООО "ТрансСтройАвто"',
+   211→    inn: '5012345682',
+   212→    kpp: '501205001',
+   213→    bankAccount: '40702810900005000005',
+   214→    bankName: 'ПАО "Сбербанк"',
+   215→    bik: '044525225',
+   216→  },
+   217→  {
+   218→    id: 'cp-6',
+   219→    name: 'ООО "ЭлектроСнаб"',
+   220→    inn: '5012345683',
+   221→    kpp: '501206001',
+   222→    bankAccount: '40702810900006000006',
+   223→    bankName: 'АО "ВТБ"',
+   224→    bik: '044525041',
+   225→  },
+   226→  {
+   227→    id: 'cp-7',
+   228→    name: 'АО "СтройТехника"',
+   229→    inn: '5012345684',
+   230→    kpp: '501207001',
+   231→    bankAccount: '40702810900007000007',
+   232→    bankName: 'ПАО "Сбербанк"',
+   233→    bik: '044525225',
+   234→  },
+   235→  {
+   236→    id: 'cp-8',
+   237→    name: 'ООО "Прайм-Изоляция"',
+   238→    inn: '5012345685',
+   239→    kpp: '501208001',
+   240→    bankAccount: '40702810900008000008',
+   241→    bankName: 'АО "Альфа-Банк"',
+   242→    bik: '044525593',
+   243→  },
+   244→]
+   245→
+   246→export const expenseCategories = [
+   247→  'Материалы',
+   248→  'Подрядные работы',
+   249→  'Аренда техники',
+   250→  'Зарплата',
+   251→  'Налоги',
+   252→  'Прочие',
+   253→]
+   254→
+   255→export const paymentRequests: PaymentRequest[] = [
+   256→  {
+   257→    id: 'pr-1',
+   258→    number: 'ЗО-001',
+   259→    date: '2025-01-06',
+   260→    organizationId: 'org-1',
+   261→    counterpartyId: 'cp-1',
+   262→    counterpartyName: 'ООО "БетонМастер"',
+   263→    amount: 2350000,
+   264→    purpose: 'Оплата за поставку бетона М300 по договору №45 от 01.03.2024',
+   265→    status: 'Согласованная',
+   266→    expenseCategory: 'Материалы',
+   267→    source: 'auto',
+   268→    invoiceId: 'inv-1',
+   269→    approvalHistory: [
+   270→      { date: '2025-01-06 09:15', action: 'Создана', user: 'Иванова А.А.' },
+   271→      { date: '2025-01-07 10:30', action: 'Направлена на согласование', user: 'Петрова М.И.' },
+   272→      { date: '2025-01-08 14:00', action: 'Согласована', user: 'Сидоров К.В.' },
+   273→    ],
+   274→  },
+   275→  {
+   276→    id: 'pr-2',
+   277→    number: 'ЗО-002',
+   278→    date: '2025-01-08',
+   279→    organizationId: 'org-1',
+   280→    counterpartyId: 'cp-2',
+   281→    counterpartyName: 'ООО "МеталлСнабПро"',
+   282→    amount: 5780000,
+   283→    purpose: 'Оплата за поставку арматуры А500С по договору №78 от 15.05.2024',
+   284→    status: 'На согласовании',
+   285→    expenseCategory: 'Материалы',
+   286→    source: 'manual',
+   287→    approvalHistory: [
+   288→      { date: '2025-01-08 11:00', action: 'Создана', user: 'Иванова А.А.' },
+   289→      { date: '2025-01-09 09:00', action: 'Направлена на согласование', user: 'Петрова М.И.' },
+   290→    ],
+   291→  },
+   292→  {
+   293→    id: 'pr-3',
+   294→    number: 'ЗО-003',
+   295→    date: '2025-01-10',
+   296→    organizationId: 'org-2',
+   297→    counterpartyId: 'cp-5',
+   298→    counterpartyName: 'ООО "ТрансСтройАвто"',
+   299→    amount: 890000,
+   300→    purpose: 'Оплата за перевозку строительных материалов в январе 2025',
+   301→    status: 'Новая',
+   302→    expenseCategory: 'Прочие',
+   303→    source: 'auto',
+   304→    invoiceId: 'inv-3',
+   305→    approvalHistory: [
+   306→      { date: '2025-01-10 08:45', action: 'Создана автоматически из счёта', user: 'Система' },
+   307→    ],
+   308→  },
+   309→  {
+   310→    id: 'pr-4',
+   311→    number: 'ЗО-004',
+   312→    date: '2025-01-11',
+   313→    organizationId: 'org-3',
+   314→    counterpartyId: 'cp-7',
+   315→    counterpartyName: 'АО "СтройТехника"',
+   316→    amount: 4500000,
+   317→    purpose: 'Аренда экскаватора CAT 320D на январь 2025',
+   318→    status: 'Согласованная',
+   319→    expenseCategory: 'Аренда техники',
+   320→    source: 'manual',
+   321→    approvalHistory: [
+   322→      { date: '2025-01-11 10:00', action: 'Создана', user: 'Козлов Д.С.' },
+   323→      { date: '2025-01-12 11:30', action: 'Направлена на согласование', user: 'Козлов Д.С.' },
+   324→      { date: '2025-01-13 16:00', action: 'Согласована', user: 'Сидоров К.В.' },
+   325→    ],
+   326→  },
+   327→  {
+   328→    id: 'pr-5',
+   329→    number: 'ЗО-005',
+   330→    date: '2025-01-13',
+   331→    organizationId: 'org-1',
+   332→    counterpartyId: 'cp-4',
+   333→    counterpartyName: 'ИП Кузнецов В.П.',
+   334→    amount: 320000,
+   335→    purpose: 'Оплата за электромонтажные работы на объекте «ЖК Horizon»',
+   336→    status: 'Не согласована',
+   337→    expenseCategory: 'Подрядные работы',
+   338→    source: 'manual',
+   339→    approvalHistory: [
+   340→      { date: '2025-01-13 09:30', action: 'Создана', user: 'Иванова А.А.' },
+   341→      { date: '2025-01-14 10:00', action: 'Направлена на согласование', user: 'Петрова М.И.' },
+   342→      { date: '2025-01-15 11:00', action: 'Не согласована — превышение бюджета', user: 'Сидоров К.В.' },
+   343→    ],
+   344→  },
+   345→  {
+   346→    id: 'pr-6',
+   347→    number: 'ЗО-006',
+   348→    date: '2025-01-15',
+   349→    organizationId: 'org-4',
+   350→    counterpartyId: 'cp-6',
+   351→    counterpartyName: 'ООО "ЭлектроСнаб"',
+   352→    amount: 1670000,
+   353→    purpose: 'Оплата за электрооборудование по договору №112 от 20.09.2024',
+   354→    status: 'На согласовании',
+   355→    expenseCategory: 'Материалы',
+   356→    source: 'auto',
+   357→    invoiceId: 'inv-5',
+   358→    approvalHistory: [
+   359→      { date: '2025-01-15 08:00', action: 'Создана автоматически из счёта', user: 'Система' },
+   360→      { date: '2025-01-15 14:00', action: 'Направлена на согласование', user: 'Новикова Е.В.' },
+   361→    ],
+   362→  },
+   363→  {
+   364→    id: 'pr-7',
+   365→    number: 'ЗО-007',
+   366→    date: '2025-01-16',
+   367→    organizationId: 'org-2',
+   368→    counterpartyId: 'cp-3',
+   369→    counterpartyName: 'ООО "Арматура-Трейд"',
+   370→    amount: 3120000,
+   371→    purpose: 'Оплата за поставку крепежных изделий и метизов',
+   372→    status: 'Новая',
+   373→    expenseCategory: 'Материалы',
+   374→    source: 'manual',
+   375→    approvalHistory: [
+   376→      { date: '2025-01-16 10:15', action: 'Создана', user: 'Козлов Д.С.' },
+   377→    ],
+   378→  },
+   379→  {
+   380→    id: 'pr-8',
+   381→    number: 'ЗО-008',
+   382→    date: '2025-01-17',
+   383→    organizationId: 'org-5',
+   384→    counterpartyId: 'cp-8',
+   385→    counterpartyName: 'ООО "Прайм-Изоляция"',
+   386→    amount: 980000,
+   387→    purpose: 'Оплата за гидроизоляционные материалы для проекта «Бизнес-Центр Нова»',
+   388→    status: 'Согласованная',
+   389→    expenseCategory: 'Материалы',
+   390→    source: 'auto',
+   391→    invoiceId: 'inv-7',
+   392→    approvalHistory: [
+   393→      { date: '2025-01-17 09:00', action: 'Создана автоматически из счёта', user: 'Система' },
+   394→      { date: '2025-01-17 12:00', action: 'Направлена на согласование', user: 'Федорова Л.А.' },
+   395→      { date: '2025-01-18 10:00', action: 'Согласована', user: 'Сидоров К.В.' },
+   396→    ],
+   397→  },
+   398→  {
+   399→    id: 'pr-9',
+   400→    number: 'ЗО-009',
+   401→    date: '2025-01-18',
+   402→    organizationId: 'org-1',
+   403→    counterpartyId: 'cp-1',
+   404→    counterpartyName: 'ООО "БетонМастер"',
+   405→    amount: 14500000,
+   406→    purpose: 'Оплата за крупную партию бетона для фундамента объекта «ЖК Панорама»',
+   407→    status: 'На согласовании',
+   408→    expenseCategory: 'Материалы',
+   409→    source: 'manual',
+   410→    approvalHistory: [
+   411→      { date: '2025-01-18 08:30', action: 'Создана', user: 'Иванова А.А.' },
+   412→      { date: '2025-01-18 15:00', action: 'Направлена на согласование', user: 'Петрова М.И.' },
+   413→    ],
+   414→  },
+   415→  {
+   416→    id: 'pr-10',
+   417→    number: 'ЗО-010',
+   418→    date: '2025-01-19',
+   419→    organizationId: 'org-3',
+   420→    counterpartyId: 'cp-5',
+   421→    counterpartyName: 'ООО "ТрансСтройАвто"',
+   422→    amount: 450000,
+   423→    purpose: 'Оплата за вывоз грунта с площадки строительства',
+   424→    status: 'Согласованная',
+   425→    expenseCategory: 'Прочие',
+   426→    source: 'manual',
+   427→    approvalHistory: [
+   428→      { date: '2025-01-19 09:00', action: 'Создана', user: 'Козлов Д.С.' },
+   429→      { date: '2025-01-19 14:00', action: 'Направлена на согласование', user: 'Козлов Д.С.' },
+   430→      { date: '2025-01-20 09:30', action: 'Согласована', user: 'Сидоров К.В.' },
+   431→    ],
+   432→  },
+   433→  {
+   434→    id: 'pr-11',
+   435→    number: 'ЗО-011',
+   436→    date: '2025-01-20',
+   437→    organizationId: 'org-2',
+   438→    counterpartyId: 'cp-2',
+   439→    counterpartyName: 'ООО "МеталлСнабПро"',
+   440→    amount: 2150000,
+   441→    purpose: 'Оплата за поставку профнастила и кровельных материалов',
+   442→    status: 'Новая',
+   443→    expenseCategory: 'Материалы',
+   444→    source: 'auto',
+   445→    invoiceId: 'inv-2',
+   446→    approvalHistory: [
+   447→      { date: '2025-01-20 10:00', action: 'Создана автоматически из счёта', user: 'Система' },
+   448→    ],
+   449→  },
+   450→  {
+   451→    id: 'pr-12',
+   452→    number: 'ЗО-012',
+   453→    date: '2025-01-21',
+   454→    organizationId: 'org-1',
+   455→    counterpartyId: 'cp-6',
+   456→    counterpartyName: 'ООО "ЭлектроСнаб"',
+   457→    amount: 780000,
+   458→    purpose: 'Оплата за кабельно-проводниковую продукцию',
+   459→    status: 'На согласовании',
+   460→    expenseCategory: 'Материалы',
+   461→    source: 'auto',
+   462→    invoiceId: 'inv-6',
+   463→    approvalHistory: [
+   464→      { date: '2025-01-21 08:00', action: 'Создана автоматически из счёта', user: 'Система' },
+   465→      { date: '2025-01-21 13:00', action: 'Направлена на согласование', user: 'Петрова М.И.' },
+   466→    ],
+   467→  },
+   468→]
+   469→
+   470→export const invoices: Invoice[] = [
+   471→  {
+   472→    id: 'inv-1',
+   473→    number: 'СФ-1045 от 05.01.2025',
+   474→    date: '2025-01-05',
+   475→    counterpartyId: 'cp-1',
+   476→    counterpartyName: 'ООО "БетонМастер"',
+   477→    inn: '5012345678',
+   478→    amount: 2350000,
+   479→    purpose: 'Бетон М300, 120 м³',
+   480→    organizationId: 'org-1',
+   481→    expenseCategory: 'Материалы',
+   482→    status: 'Обработан',
+   483→    linkedRequestId: 'pr-1',
+   484→  },
+   485→  {
+   486→    id: 'inv-2',
+   487→    number: 'СФ-2089 от 18.01.2025',
+   488→    date: '2025-01-18',
+   489→    counterpartyId: 'cp-2',
+   490→    counterpartyName: 'ООО "МеталлСнабПро"',
+   491→    inn: '5012345679',
+   492→    amount: 2150000,
+   493→    purpose: 'Профнастил С-21, 850 м²; кровельные саморезы 5000 шт',
+   494→    organizationId: 'org-2',
+   495→    expenseCategory: 'Материалы',
+   496→    status: 'Обработан',
+   497→    linkedRequestId: 'pr-11',
+   498→  },
+   499→  {
+   500→    id: 'inv-3',
+   501→    number: 'СФ-0312 от 09.01.2025',
+   502→    date: '2025-01-09',
+   503→    counterpartyId: 'cp-5',
+   504→    counterpartyName: 'ООО "ТрансСтройАвто"',
+   505→    inn: '5012345682',
+   506→    amount: 890000,
+   507→    purpose: 'Перевозка строительных материалов, 12 рейсов',
+   508→    organizationId: 'org-2',
+   509→    expenseCategory: 'Прочие',
+   510→    status: 'Обработан',
+   511→    linkedRequestId: 'pr-3',
+   512→  },
+   513→  {
+   514→    id: 'inv-4',
+   515→    number: 'СФ-0678 от 12.01.2025',
+   516→    date: '2025-01-12',
+   517→    counterpartyId: 'cp-3',
+   518→    counterpartyName: 'ООО "Арматура-Трейд"',
+   519→    inn: '5012345680',
+   520→    amount: 4200000,
+   521→    purpose: 'Арматура А500С Ø12, 45 тн',
+   522→    organizationId: 'org-1',
+   523→    expenseCategory: 'Материалы',
+   524→    status: 'Ожидает',
+   525→  },
+   526→  {
+   527→    id: 'inv-5',
+   528→    number: 'СФ-0901 от 14.01.2025',
+   529→    date: '2025-01-14',
+   530→    counterpartyId: 'cp-6',
+   531→    counterpartyName: 'ООО "ЭлектроСнаб"',
+   532→    inn: '5012345683',
+   533→    amount: 1670000,
+   534→    purpose: 'Кабель ВВГнг 3х4 — 5000 м; автоматические выключатели — 120 шт',
+   535→    organizationId: 'org-4',
+   536→    expenseCategory: 'Материалы',
+   537→    status: 'Обработан',
+   538→    linkedRequestId: 'pr-6',
+   539→  },
+   540→  {
+   541→    id: 'inv-6',
+   542→    number: 'СФ-1102 от 20.01.2025',
+   543→    date: '2025-01-20',
+   544→    counterpartyId: 'cp-6',
+   545→    counterpartyName: 'ООО "ЭлектроСнаб"',
+   546→    inn: '5012345683',
+   547→    amount: 780000,
+   548→    purpose: 'Кабель ВВГнг 3х2,5 — 3000 м; розетки — 200 шт',
+   549→    organizationId: 'org-1',
+   550→    expenseCategory: 'Материалы',
+   551→    status: 'Обработан',
+   552→    linkedRequestId: 'pr-12',
+   553→  },
+   554→  {
+   555→    id: 'inv-7',
+   556→    number: 'СФ-0445 от 16.01.2025',
+   557→    date: '2025-01-16',
+   558→    counterpartyId: 'cp-8',
+   559→    counterpartyName: 'ООО "Прайм-Изоляция"',
+   560→    inn: '5012345685',
+   561→    amount: 980000,
+   562→    purpose: 'Мастика битумная — 2 тн; рулонная гидроизоляция — 1500 м²',
+   563→    organizationId: 'org-5',
+   564→    expenseCategory: 'Материалы',
+   565→    status: 'Обработан',
+   566→    linkedRequestId: 'pr-8',
+   567→  },
+   568→  {
+   569→    id: 'inv-8',
+   570→    number: 'СФ-1234 от 21.01.2025',
+   571→    date: '2025-01-21',
+   572→    counterpartyId: 'cp-7',
+   573→    counterpartyName: 'АО "СтройТехника"',
+   574→    inn: '5012345684',
+   575→    amount: 2800000,
+   576→    purpose: 'Аренда башенного крана Liebherr 150 EC-H, февраль 2025',
+   577→    organizationId: 'org-3',
+   578→    expenseCategory: 'Аренда техники',
+   579→    status: 'Ожидает',
+   580→  },
+   581→]
+   582→
+   583→export const registerEntries: RegisterEntry[] = [
+   584→  {
+   585→    id: 're-1',
+   586→    requestId: 'pr-1',
+   587→    requestNumber: 'ЗО-001',
+   588→    date: '2025-01-09',
+   589→    counterpartyName: 'ООО "БетонМастер"',
+   590→    amount: 2350000,
+   591→    organizationId: 'org-1',
+   592→    status: 'Исполнено',
+   593→    orderId: 'po-1',
+   594→  },
+   595→  {
+   596→    id: 're-2',
+   597→    requestId: 'pr-4',
+   598→    requestNumber: 'ЗО-004',
+   599→    date: '2025-01-14',
+   600→    counterpartyName: 'АО "СтройТехника"',
+   601→    amount: 4500000,
+   602→    organizationId: 'org-3',
+   603→    status: 'В поручении',
+   604→    orderId: 'po-2',
+   605→  },
+   606→  {
+   607→    id: 're-3',
+   608→    requestId: 'pr-8',
+   609→    requestNumber: 'ЗО-008',
+   610→    date: '2025-01-19',
+   611→    counterpartyName: 'ООО "Прайм-Изоляция"',
+   612→    amount: 980000,
+   613→    organizationId: 'org-5',
+   614→    status: 'В поручении',
+   615→    orderId: 'po-3',
+   616→  },
+   617→  {
+   618→    id: 're-4',
+   619→    requestId: 'pr-10',
+   620→    requestNumber: 'ЗО-010',
+   621→    date: '2025-01-21',
+   622→    counterpartyName: 'ООО "ТрансСтройАвто"',
+   623→    amount: 450000,
+   624→    organizationId: 'org-3',
+   625→    status: 'Ожидает',
+   626→  },
+   627→  {
+   628→    id: 're-5',
+   629→    requestId: 'pr-1',
+   630→    requestNumber: 'ЗО-001',
+   631→    date: '2025-01-22',
+   632→    counterpartyName: 'ООО "БетонМастер"',
+   633→    amount: 1500000,
+   634→    organizationId: 'org-1',
+   635→    status: 'Ожидает',
+   636→  },
+   637→  {
+   638→    id: 're-6',
+   639→    requestId: 'pr-4',
+   640→    requestNumber: 'ЗО-004',
+   641→    date: '2025-01-22',
+   642→    counterpartyName: 'АО "СтройТехника"',
+   643→    amount: 3200000,
+   644→    organizationId: 'org-3',
+   645→    status: 'Ожидает',
+   646→  },
+   647→]
+   648→
+   649→export const paymentOrders: PaymentOrder[] = [
+   650→  {
+   651→    id: 'po-1',
+   652→    number: 'ПП-000001',
+   653→    date: '2025-01-10',
+   654→    registerEntryIds: ['re-1'],
+   655→    requestNumbers: ['ЗО-001'],
+   656→    payerId: 'org-1',
+   657→    amount: 2350000,
+   658→    status: 'Экспортировано',
+   659→  },
+   660→  {
+   661→    id: 'po-2',
+   662→    number: 'ПП-000002',
+   663→    date: '2025-01-15',
+   664→    registerEntryIds: ['re-2'],
+   665→    requestNumbers: ['ЗО-004'],
+   666→    payerId: 'org-3',
+   667→    amount: 4500000,
+   668→    status: 'Сформировано',
+   669→  },
+   670→  {
+   671→    id: 'po-3',
+   672→    number: 'ПП-000003',
+   673→    date: '2025-01-20',
+   674→    registerEntryIds: ['re-3'],
+   675→    requestNumbers: ['ЗО-008'],
+   676→    payerId: 'org-5',
+   677→    amount: 980000,
+   678→    status: 'Сформировано',
+   679→  },
+   680→  {
+   681→    id: 'po-4',
+   682→    number: 'ПП-000004',
+   683→    date: '2025-01-22',
+   684→    registerEntryIds: ['re-5', 're-6'],
+   685→    requestNumbers: ['ЗО-001', 'ЗО-004'],
+   686→    payerId: 'org-1',
+   687→    amount: 4700000,
+   688→    status: 'Сформировано',
+   689→  },
+   690→  {
+   691→    id: 'po-5',
+   692→    number: 'ПП-000005',
+   693→    date: '2025-01-23',
+   694→    registerEntryIds: ['re-4'],
+   695→    requestNumbers: ['ЗО-010'],
+   696→    payerId: 'org-3',
+   697→    amount: 450000,
+   698→    status: 'Экспортировано',
+   699→  },
+   700→  {
+   701→    id: 'po-6',
+   702→    number: 'ПП-000006',
+   703→    date: '2025-01-24',
+   704→    registerEntryIds: ['re-2'],
+   705→    requestNumbers: ['ЗО-004'],
+   706→    payerId: 'org-3',
+   707→    amount: 3200000,
+   708→    status: 'Сформировано',
+   709→  },
+   710→]
+   711→
+   712→// Financial plan: monthly plan vs actual for January 2025 by organization
+   713→export const financialPlan: FinancialPlan[] = [
+   714→  {
+   715→    organizationId: 'org-1',
+   716→    month: 1,
+   717→    year: 2025,
+   718→    rows: [
+   719→      { category: 'Материалы', plan: 12000000, actual: 8430000 },
+   720→      { category: 'Подрядные работы', plan: 5000000, actual: 320000 },
+   721→      { category: 'Аренда техники', plan: 2000000, actual: 0 },
+   722→      { category: 'Зарплата', plan: 4500000, actual: 4500000 },
+   723→      { category: 'Налоги', plan: 1800000, actual: 1800000 },
+   724→      { category: 'Прочие', plan: 1500000, actual: 350000 },
+   725→    ],
+   726→  },
+   727→  {
+   728→    organizationId: 'org-2',
+   729→    month: 1,
+   730→    year: 2025,
+   731→    rows: [
+   732→      { category: 'Материалы', plan: 8000000, actual: 5270000 },
+   733→      { category: 'Подрядные работы', plan: 3000000, actual: 0 },
+   734→      { category: 'Аренда техники', plan: 1000000, actual: 0 },
+   735→      { category: 'Зарплата', plan: 3200000, actual: 3200000 },
+   736→      { category: 'Налоги', plan: 1200000, actual: 1200000 },
+   737→      { category: 'Прочие', plan: 800000, actual: 890000 },
+   738→    ],
+   739→  },
+   740→  {
+   741→    organizationId: 'org-3',
+   742→    month: 1,
+   743→    year: 2025,
+   744→    rows: [
+   745→      { category: 'Материалы', plan: 2000000, actual: 0 },
+   746→      { category: 'Подрядные работы', plan: 4000000, actual: 0 },
+   747→      { category: 'Аренда техники', plan: 6000000, actual: 4500000 },
+   748→      { category: 'Зарплата', plan: 2800000, actual: 2800000 },
+   749→      { category: 'Налоги', plan: 1000000, actual: 1000000 },
+   750→      { category: 'Прочие', plan: 600000, actual: 450000 },
+   751→    ],
+   752→  },
+   753→  {
+   754→    organizationId: 'org-4',
+   755→    month: 1,
+   756→    year: 2025,
+   757→    rows: [
+   758→      { category: 'Материалы', plan: 3000000, actual: 1670000 },
+   759→      { category: 'Подрядные работы', plan: 1000000, actual: 0 },
+   760→      { category: 'Аренда техники', plan: 500000, actual: 0 },
+   761→      { category: 'Зарплата', plan: 2000000, actual: 2000000 },
+   762→      { category: 'Налоги', plan: 800000, actual: 800000 },
+   763→      { category: 'Прочие', plan: 400000, actual: 120000 },
+   764→    ],
+   765→  },
+   766→  {
+   767→    organizationId: 'org-5',
+   768→    month: 1,
+   769→    year: 2025,
+   770→    rows: [
+   771→      { category: 'Материалы', plan: 2500000, actual: 980000 },
+   772→      { category: 'Подрядные работы', plan: 1500000, actual: 0 },
+   773→      { category: 'Аренда техники', plan: 0, actual: 0 },
+   774→      { category: 'Зарплата', plan: 1500000, actual: 1500000 },
+   775→      { category: 'Налоги', plan: 600000, actual: 600000 },
+   776→      { category: 'Прочие', plan: 300000, actual: 50000 },
+   777→    ],
+   778→  },
+   779→]
+   780→
+   781→// Bank statements for org-1 and org-3
+   782→export const bankStatements: BankStatement[] = [
+   783→  {
+   784→    organizationId: 'org-1',
+   785→    accountNumber: '40702810900000123456',
+   786→    period: 'Январь 2025',
+   787→    openingBalance: 45000000,
+   788→    transactions: [
+   789→      { id: 'bt-1-1', date: '2025-01-03', document: 'Платёжное поручение №890', correspondentAccount: '40702810900001000001', debit: 0, credit: 5000000, purpose: 'Оплата от ООО "БетонМастер" возврат аванса' },
+   790→      { id: 'bt-1-2', date: '2025-01-05', document: 'Платёжное поручение №891', correspondentAccount: '40702810900001000001', debit: 3000000, credit: 0, purpose: 'Оплата ООО "БетонМастер" за бетон М300' },
+   791→      { id: 'bt-1-3', date: '2025-01-07', document: 'Платёжное поручение №892', correspondentAccount: '40702810900002000002', debit: 2500000, credit: 0, purpose: 'Оплата ООО "МеталлСнабПро" за арматуру' },
+   792→      { id: 'bt-1-4', date: '2025-01-08', document: 'Платёжное поручение №893', correspondentAccount: '40702810900004000004', debit: 500000, credit: 0, purpose: 'Оплата ИП Кузнецов В.П. за монтаж' },
+   793→      { id: 'bt-1-5', date: '2025-01-09', document: 'Зачисление', correspondentAccount: '40702810999999999999', debit: 0, credit: 12000000, purpose: 'Оплата от заказчика ООО "Девелопмент-Юг" по договору №55' },
+   794→      { id: 'bt-1-6', date: '2025-01-10', document: 'Платёжное поручение №894', correspondentAccount: '40702810900001000001', debit: 2350000, credit: 0, purpose: 'Оплата ООО "БетонМастер" по ЗО-001' },
+   795→      { id: 'bt-1-7', date: '2025-01-11', document: 'Платёжное поручение №895', correspondentAccount: '40602810900000000001', debit: 4500000, credit: 0, purpose: 'НДС в бюджет за декабрь 2024' },
+   796→      { id: 'bt-1-8', date: '2025-01-13', document: 'Зачисление', correspondentAccount: '40702810999999999999', debit: 0, credit: 8000000, purpose: 'Оплата от заказчика АО "ИнвестСтрой" за СМР' },
+   797→      { id: 'bt-1-9', date: '2025-01-14', document: 'Платёжное поручение №896', correspondentAccount: '40702810900006000006', debit: 780000, credit: 0, purpose: 'Оплата ООО "ЭлектроСнаб" за кабель' },
+   798→      { id: 'bt-1-10', date: '2025-01-15', document: 'Платёжное поручение №897', correspondentAccount: '40602810900000000002', debit: 1200000, credit: 0, purpose: 'НДФЛ за январь 2025' },
+   799→      { id: 'bt-1-11', date: '2025-01-16', document: 'Зачисление', correspondentAccount: '40702810999999999999', debit: 0, credit: 6500000, purpose: 'Оплата от ООО "БетонМастер" возврат переплаты' },
+   800→      { id: 'bt-1-12', date: '2025-01-17', document: 'Платёжное поручение №898', correspondentAccount: '40702810900002000002', debit: 4000000, credit: 0, purpose: 'Оплата ООО "МеталлСнабПро" по ЗО-002 (частично)' },
+   801→      { id: 'bt-1-13', date: '2025-01-18', document: 'Платёжное поручение №899', correspondentAccount: '40702810900006000006', debit: 1670000, credit: 0, purpose: 'Оплата ООО "ЭлектроСнаб" по ЗО-006' },
+   802→      { id: 'bt-1-14', date: '2025-01-20', document: 'Зачисление', correspondentAccount: '40702810999999999999', debit: 0, credit: 9500000, purpose: 'Оплата от АО "ИнвестСтрой" промежуточный платёж' },
+   803→      { id: 'bt-1-15', date: '2025-01-21', document: 'Платёжное поручение №900', correspondentAccount: '40702810900003000003', debit: 1200000, credit: 0, purpose: 'Оплата ООО "Арматура-Трейд" за метизы' },
+   804→      { id: 'bt-1-16', date: '2025-01-22', document: 'Платёжное поручение №901', correspondentAccount: '40602810900000000003', debit: 600000, credit: 0, purpose: 'Страховые взносы за январь 2025' },
+   805→      { id: 'bt-1-17', date: '2025-01-23', document: 'Зачисление', correspondentAccount: '40702810999999999999', debit: 0, credit: 5000000, purpose: 'Кредитовый лимит — зачисление' },
+   806→    ],
+   807→    closingBalance: 0, // will be calculated
+   808→  },
+   809→  {
+   810→    organizationId: 'org-3',
+   811→    accountNumber: '40702810900000345678',
+   812→    period: 'Январь 2025',
+   813→    openingBalance: 22000000,
+   814→    transactions: [
+   815→      { id: 'bt-3-1', date: '2025-01-03', document: 'Платёжное поручение №210', correspondentAccount: '40702810900007000007', debit: 3500000, credit: 0, purpose: 'Аренда экскаватора CAT 320D декабрь 2024' },
+   816→      { id: 'bt-3-2', date: '2025-01-05', document: 'Зачисление', correspondentAccount: '40702810999999999999', debit: 0, credit: 7500000, purpose: 'Оплата от ООО "Стэк-Строй" по договору внутри группы' },
+   817→      { id: 'bt-3-3', date: '2025-01-07', document: 'Платёжное поручение №211', correspondentAccount: '40702810900005000005', debit: 1200000, credit: 0, purpose: 'Оплата ООО "ТрансСтройАвто" за перевозку' },
+   818→      { id: 'bt-3-4', date: '2025-01-09', document: 'Платёжное поручение №212', correspondentAccount: '40602810900000000004', debit: 2800000, credit: 0, purpose: 'НДС за декабрь 2024' },
+   819→      { id: 'bt-3-5', date: '2025-01-10', document: 'Зачисление', correspondentAccount: '40702810999999999999', debit: 0, credit: 4200000, purpose: 'Оплата от заказчика за монтаж конструкций' },
+   820→      { id: 'bt-3-6', date: '2025-01-12', document: 'Платёжное поручение №213', correspondentAccount: '40702810900007000007', debit: 4500000, credit: 0, purpose: 'Аренда экскаватора CAT 320D январь 2025' },
+   821→      { id: 'bt-3-7', date: '2025-01-14', document: 'Зачисление', correspondentAccount: '40702810999999999999', debit: 0, credit: 6000000, purpose: 'Оплата от ООО "Стэк-Инжиниринг" по договору' },
+   822→      { id: 'bt-3-8', date: '2025-01-15', document: 'Платёжное поручение №214', correspondentAccount: '40602810900000000005', debit: 1000000, credit: 0, purpose: 'НДФЛ за январь 2025' },
+   823→      { id: 'bt-3-9', date: '2025-01-17', document: 'Платёжное поручение №215', correspondentAccount: '40702810900005000005', debit: 450000, credit: 0, purpose: 'Оплата ООО "ТрансСтройАвто" вывоз грунта' },
+   824→      { id: 'bt-3-10', date: '2025-01-19', document: 'Зачисление', correspondentAccount: '40702810999999999999', debit: 0, credit: 3800000, purpose: 'Оплата от АО "СтройТехника" возврат' },
+   825→      { id: 'bt-3-11', date: '2025-01-20', document: 'Платёжное поручение №216', correspondentAccount: '40602810900000000006', debit: 500000, credit: 0, purpose: 'Страховые взносы за январь 2025' },
+   826→      { id: 'bt-3-12', date: '2025-01-21', document: 'Платёжное поручение №217', correspondentAccount: '40702810900007000007', debit: 2800000, credit: 0, purpose: 'Аренда башенного крана Liebherr февраль 2025' },
+   827→      { id: 'bt-3-13', date: '2025-01-22', document: 'Зачисление', correspondentAccount: '40702810999999999999', debit: 0, credit: 5500000, purpose: 'Оплата от заказчика за электромонтаж' },
+   828→      { id: 'bt-3-14', date: '2025-01-23', document: 'Платёжное поручение №218', correspondentAccount: '40702810900001000001', debit: 800000, credit: 0, purpose: 'Оплата ООО "БетонМастер" за бетон' },
+   829→      { id: 'bt-3-15', date: '2025-01-24', document: 'Платёжное поручение №219', correspondentAccount: '40702810900004000004', debit: 350000, credit: 0, purpose: 'Оплата ИП Кузнецов В.П. за сварочные работы' },
+   830→      { id: 'bt-3-16', date: '2025-01-25', document: 'Зачисление', correspondentAccount: '40702810999999999999', debit: 0, credit: 3000000, purpose: 'Оплата от ООО "Стэк-Строй" — внутри группы' },
+   831→    ],
+   832→    closingBalance: 0,
+   833→  },
+   834→]
+   835→
+   836→// Calculate closing balances
+   837→bankStatements[0].closingBalance =
+   838→  bankStatements[0].openingBalance +
+   839→  bankStatements[0].transactions.reduce((s, t) => s + t.credit - t.debit, 0)
+   840→bankStatements[1].closingBalance =
+   841→  bankStatements[1].openingBalance +
+   842→  bankStatements[1].transactions.reduce((s, t) => s + t.credit - t.debit, 0)
+   843→
+   844→// Calendar entries derived from register + plan
+   845→export const calendarEntries: CalendarEntry[] = [
+   846→  { date: '2025-01-03', plannedAmount: 3500000, actualAmount: 3500000, paymentCount: 1, status: 'completed', organizationId: 'org-1', description: 'Оплата ООО "БетонМастер" — возврат аванса' },
+   847→  { date: '2025-01-05', plannedAmount: 5500000, actualAmount: 5500000, paymentCount: 2, status: 'completed', organizationId: 'org-1', description: 'Оплата за бетон и арматуру' },
+   848→  { date: '2025-01-07', plannedAmount: 3700000, actualAmount: 3700000, paymentCount: 2, status: 'completed', organizationId: 'org-1', description: 'Оплата за арматуру и перевозку' },
+   849→  { date: '2025-01-08', plannedAmount: 500000, actualAmount: 500000, paymentCount: 1, status: 'completed', organizationId: 'org-1', description: 'Оплата ИП Кузнецов за монтаж' },
+   850→  { date: '2025-01-10', plannedAmount: 6850000, actualAmount: 6850000, paymentCount: 2, status: 'completed', organizationId: 'org-1', description: 'Оплата ООО "БетонМастер" и НДС' },
+   851→  { date: '2025-01-13', plannedAmount: 8000000, actualAmount: 8000000, paymentCount: 1, status: 'completed', organizationId: 'org-1', description: 'Зачисление от АО "ИнвестСтрой"' },
+   852→  { date: '2025-01-14', plannedAmount: 1200000, actualAmount: 1200000, paymentCount: 1, status: 'completed', organizationId: 'org-1', description: 'Оплата за кабель' },
+   853→  { date: '2025-01-15', plannedAmount: 1200000, actualAmount: 1200000, paymentCount: 1, status: 'completed', organizationId: 'org-1', description: 'НДФЛ за январь 2025' },
+   854→  { date: '2025-01-17', plannedAmount: 4000000, actualAmount: 4000000, paymentCount: 1, status: 'completed', organizationId: 'org-1', description: 'Оплата ООО "МеталлСнабПро"' },
+   855→  { date: '2025-01-20', plannedAmount: 9500000, actualAmount: 9500000, paymentCount: 1, status: 'completed', organizationId: 'org-1', description: 'Зачисление от АО "ИнвестСтрой"' },
+   856→  { date: '2025-01-22', plannedAmount: 1800000, actualAmount: 1800000, paymentCount: 2, status: 'completed', organizationId: 'org-1', description: 'Оплата за метизы и взносы' },
+   857→  { date: '2025-01-24', plannedAmount: 5000000, actualAmount: 0, paymentCount: 0, status: 'planned', organizationId: 'org-1', description: 'Плановый платёж по договору' },
+   858→  { date: '2025-01-27', plannedAmount: 3200000, actualAmount: 0, paymentCount: 0, status: 'planned', organizationId: 'org-1', description: 'Плановая оплата подрядчику' },
+   859→  { date: '2025-01-29', plannedAmount: 2000000, actualAmount: 0, paymentCount: 0, status: 'planned', organizationId: 'org-1', description: 'Плановая аренда техники' },
+   860→  { date: '2025-01-31', plannedAmount: 1500000, actualAmount: 0, paymentCount: 0, status: 'planned', organizationId: 'org-1', description: 'Прочие плановые платежи' },
+   861→  { date: '2025-01-03', plannedAmount: 3500000, actualAmount: 3500000, paymentCount: 1, status: 'completed', organizationId: 'org-3', description: 'Аренда экскаватора декабрь 2024' },
+   862→  { date: '2025-01-05', plannedAmount: 7500000, actualAmount: 7500000, paymentCount: 1, status: 'completed', organizationId: 'org-3', description: 'Зачисление от ООО "Стэк-Строй"' },
+   863→  { date: '2025-01-07', plannedAmount: 1200000, actualAmount: 1200000, paymentCount: 1, status: 'completed', organizationId: 'org-3', description: 'Оплата за перевозку' },
+   864→  { date: '2025-01-09', plannedAmount: 2800000, actualAmount: 2800000, paymentCount: 1, status: 'completed', organizationId: 'org-3', description: 'НДС за декабрь 2024' },
+   865→  { date: '2025-01-12', plannedAmount: 4500000, actualAmount: 4500000, paymentCount: 1, status: 'completed', organizationId: 'org-3', description: 'Аренда экскаватора январь 2025' },
+   866→  { date: '2025-01-15', plannedAmount: 1000000, actualAmount: 1000000, paymentCount: 1, status: 'completed', organizationId: 'org-3', description: 'НДФЛ за январь 2025' },
+   867→  { date: '2025-01-17', plannedAmount: 450000, actualAmount: 450000, paymentCount: 1, status: 'completed', organizationId: 'org-3', description: 'Вывоз грунта' },
+   868→  { date: '2025-01-20', plannedAmount: 500000, actualAmount: 500000, paymentCount: 1, status: 'completed', organizationId: 'org-3', description: 'Страховые взносы' },
+   869→  { date: '2025-01-22', plannedAmount: 2800000, actualAmount: 2800000, paymentCount: 1, status: 'completed', organizationId: 'org-3', description: 'Аренда башенного крана' },
+   870→  { date: '2025-01-24', plannedAmount: 1150000, actualAmount: 1150000, paymentCount: 2, status: 'completed', organizationId: 'org-3', description: 'Оплата за бетон и сварку' },
+   871→  { date: '2025-01-27', plannedAmount: 2000000, actualAmount: 0, paymentCount: 0, status: 'planned', organizationId: 'org-3', description: 'Плановый платёж по подряду' },
+   872→  { date: '2025-01-30', plannedAmount: 3500000, actualAmount: 0, paymentCount: 0, status: 'planned', organizationId: 'org-3', description: 'Плановая аренда февраля' },
+   873→]
+   874→
+   875→// Helper to format rubles
+   876→export function formatRubles(amount: number): string {
+   877→  return new Intl.NumberFormat('ru-RU', {
+   878→    style: 'currency',
+   879→    currency: 'RUB',
+   880→    minimumFractionDigits: 0,
+   881→    maximumFractionDigits: 0,
+   882→  }).format(amount)
+   883→}
+   884→
+   885→// Helper to get org name by id
+   886→export function getOrgName(orgId: string): string {
+   887→  return organizations.find((o) => o.id === orgId)?.name ?? '—'
+   888→}
+   889→
+   890→// Helper to get counterparty name by id
+   891→export function getCounterpartyName(cpId: string): string {
+   892→  return counterparties.find((c) => c.id === cpId)?.name ?? '—'
+   893→}
+   894→
+   895→// Helper to get counterparty INN by id
+   896→export function getCounterpartyInn(cpId: string): string {
+   897→  return counterparties.find((c) => c.id === cpId)?.inn ?? ''
+   898→}
