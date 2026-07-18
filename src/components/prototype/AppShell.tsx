@@ -27,6 +27,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
+  TooltipProvider,
 } from '@/components/ui/tooltip'
 
 import DashboardScreen from './DashboardScreen'
@@ -140,7 +141,7 @@ function NavItem({ item, collapsed, onClick }: { item: typeof navItems[0]; colla
     return (
       <Tooltip delayDuration={0}>
         <TooltipTrigger asChild>
-          {button}
+          <div>{button}</div>
         </TooltipTrigger>
         <TooltipContent side="right" sideOffset={12}>
           <p className="text-xs font-medium">{item.label}</p>
@@ -173,6 +174,7 @@ export default function AppShell() {
       />
 
       {/* ===== SIDEBAR ===== */}
+      <TooltipProvider>
       <aside
         className={`
           fixed z-50 flex h-full flex-col border-r bg-white
@@ -274,6 +276,7 @@ export default function AppShell() {
           </div>
         </div>
       </aside>
+      </TooltipProvider>
 
       {/* ===== MAIN AREA ===== */}
       <div className="flex flex-1 flex-col overflow-hidden transition-all duration-300 ease-out">
