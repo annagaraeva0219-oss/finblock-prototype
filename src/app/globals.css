@@ -66,3 +66,34 @@
   * { @apply border-border outline-ring/50; }
   body { @apply bg-background text-foreground; }
 }
+
+/* Sidebar nav item entrance stagger */
+@keyframes sidebar-item-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+nav.flex.flex-col.gap-1 > div {
+  animation: sidebar-item-in 0.25s ease-out both;
+}
+
+/* Smooth scrollbar for sidebar */
+.ScrollArea-viewport::-webkit-scrollbar {
+  width: 4px;
+}
+.ScrollArea-viewport::-webkit-scrollbar-track {
+  background: transparent;
+}
+.ScrollArea-viewport::-webkit-scrollbar-thumb {
+  background: oklch(0.8 0 0);
+  border-radius: 999px;
+}
+.ScrollArea-viewport::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.65 0 0);
+}

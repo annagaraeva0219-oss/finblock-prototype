@@ -13,12 +13,21 @@ import {
   Settings,
   Menu,
   X,
+  PanelLeftClose,
+  PanelLeftOpen,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react'
 import { useAppStore } from '@/store/useAppStore'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 import DashboardScreen from './DashboardScreen'
 import EnterInvoiceScreen from './EnterInvoiceScreen'
@@ -37,10 +46,10 @@ const navItems = [
   { id: 'payment-requests', label: 'Заявки на оплату', icon: FileCheck },
   { id: 'payment-register', label: 'Реестр платежей', icon: ClipboardList },
   { id: 'payment-orders', label: 'Платёжные поручения', icon: CreditCard },
-  { id: 'financial-planning', label: 'Финансовое планирование', icon: TrendingUp },
+  { id: 'financial-planning', label: 'Фин. планирование', icon: TrendingUp },
   { id: 'payment-calendar', label: 'Платёжный календарь', icon: CalendarDays },
   { id: 'bank-reports', label: 'Банковские отчёты', icon: Landmark },
-  { id: 'integration-settings', label: 'Настройки интеграций', icon: Settings },
+  { id: 'integration-settings', label: 'Настройки', icon: Settings },
 ]
 
 function ScreenRouter() {
@@ -74,90 +83,219 @@ function ScreenRouter() {
   }
 }
 
+function NavItem({ item, collapsed, onClick }: { item: typeof navItems[0]; collapsed: boolean; onClick: () => void }) {
+  const { currentScreen } = useAppStore()
+  const Icon = item.icon
+  const isActive = currentScreen === item.id
+
+  const button = (
+    <button
+      onClick={onClick}
+      className={`
+        group relative flex items-center rounded-lg text-sm font-medium
+        transition-all duration-200 ease-out
+        hover:scale-[1.02] active:scale-[0.98]
+        ${collapsed
+          ? 'mx-auto h-10 w-10 justify-center p-0'
+          : 'h-9 w-full gap-3 px-3'
+        }
+        ${
+          isActive
+            ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25'
+            : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+        }
+      `}
+    >
+      {/* Active indicator bar */}
+      {isActive && (
+        <span
+          className={`
+            absolute rounded-full bg-primary-foreground
+            transition-all duration-300 ease-out
+            ${collapsed ? 'left-1/2 h-1 w-1 -translate-x-1/2 top-[5px]' : '-left-[13px] top-1/2 h-5 w-1 -translate-y-1/2'}
+          `}
+        />
+      )}
+
+      <Icon className={`h-[18px] w-[18px] shrink-0 transition-transform duration-200 ${!collapsed && 'group-hover:rotate-[-6deg] group-hover:scale-110'}`} />
+
+      {!collapsed && (
+        <span className="truncate transition-all duration-200">
+          {item.label}
+        </span>
+      )}
+
+      {/* Hover glow effect */}
+      {!isActive && (
+        <span
+          className="pointer-events-none absolute inset-0 rounded-lg opacity-0 transition-opacity duration-300
+            bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5
+            group-hover:opacity-100"
+        />
+      )}
+    </button>
+  )
+
+  if (collapsed) {
+    return (
+      <Tooltip delayDuration={0}>
+        <TooltipTrigger asChild>
+          {button}
+        </TooltipTrigger>
+        <TooltipContent side="right" sideOffset={12}>
+          <p className="text-xs font-medium">{item.label}</p>
+        </TooltipContent>
+      </Tooltip>
+    )
+  }
+
+  return button
+}
+
 export default function AppShell() {
-  const { currentScreen, currentOrgId, organizations, setCurrentScreen, setCurrentOrgId } =
+  const { currentOrgId, organizations, setCurrentOrgId, sidebarCollapsed, toggleSidebar, setCurrentScreen } =
     useAppStore()
-  const [sidebarOpen, setSidebarOpen] = React.useState(false)
+  const [mobileOpen, setMobileOpen] = React.useState(false)
 
   const handleNav = (id: string) => {
     setCurrentScreen(id)
-    setSidebarOpen(false)
+    setMobileOpen(false)
   }
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-background">
-      {/* Sidebar overlay on mobile */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
-      <aside
-        className={`fixed z-50 flex h-full w-64 flex-col border-r bg-white transition-transform duration-200 lg:static lg:translate-x-0 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      {/* Mobile overlay */}
+      <div
+        className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-all duration-300 lg:hidden ${
+          mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
+        onClick={() => setMobileOpen(false)}
+      />
+
+      {/* ===== SIDEBAR ===== */}
+      <aside
+        className={`
+          fixed z-50 flex h-full flex-col border-r bg-white
+          transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
+          lg:static
+          ${sidebarCollapsed ? 'lg:w-[68px]' : 'lg:w-64'}
+          ${mobileOpen ? 'w-72 translate-x-0' : 'w-72 -translate-x-full lg:translate-x-0'}
+        `}
       >
-        {/* Logo */}
-        <div className="flex h-14 items-center gap-2 border-b px-4">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <span className="text-sm font-bold text-primary-foreground">F</span>
+        {/* Logo section */}
+        <div className="flex h-14 items-center border-b px-3">
+          <div
+            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary
+              transition-all duration-300 ease-out
+              ${sidebarCollapsed ? 'lg:mx-auto' : ''}
+            `}
+          >
+            <span className="text-sm font-bold text-primary-foreground transition-transform duration-300 hover:rotate-12">
+              F
+            </span>
           </div>
-          <span className="text-lg font-bold tracking-tight text-foreground">FinBlock</span>
+          <div
+            className={`
+              flex items-center overflow-hidden
+              transition-all duration-300 ease-out
+              ${sidebarCollapsed ? 'lg:w-0 lg:opacity-0 lg:ml-0' : 'lg:w-auto lg:opacity-100 lg:ml-2.5'}
+              ${mobileOpen ? 'ml-2.5 w-auto opacity-100' : 'w-0 opacity-0'}
+            `}
+          >
+            <span className="whitespace-nowrap text-lg font-bold tracking-tight text-foreground">
+              FinBlock
+            </span>
+          </div>
+
+          {/* Mobile close */}
           <button
-            className="ml-auto lg:hidden"
-            onClick={() => setSidebarOpen(false)}
+            className="ml-auto transition-transform duration-200 hover:rotate-90 lg:hidden"
+            onClick={() => setMobileOpen(false)}
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        {/* Nav */}
-        <ScrollArea className="flex-1 px-3 py-2">
+        {/* Navigation */}
+        <ScrollArea className="flex-1 px-2 py-2">
           <nav className="flex flex-col gap-1">
-            {navItems.map((item) => {
-              const Icon = item.icon
-              const isActive = currentScreen === item.id
-              return (
-                <button
-                  key={item.id}
+            {navItems.map((item, index) => (
+              <div
+                key={item.id}
+                className="transition-all duration-300"
+                style={{ animationDelay: `${index * 30}ms` }}
+              >
+                <NavItem
+                  item={item}
+                  collapsed={sidebarCollapsed}
                   onClick={() => handleNav(item.id)}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-                  }`}
-                >
-                  <Icon className="h-4 w-4 shrink-0" />
-                  {item.label}
-                </button>
-              )
-            })}
+                />
+              </div>
+            ))}
           </nav>
         </ScrollArea>
 
-        {/* Footer */}
-        <div className="border-t p-4">
-          <p className="text-xs text-muted-foreground">
-            Группа компаний «Стэк»
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Версия прототипа 1.0
-          </p>
+        {/* Footer with collapse toggle */}
+        <div className="border-t p-2">
+          {/* Collapse button (desktop only) */}
+          <button
+            onClick={toggleSidebar}
+            className={`
+              group flex w-full items-center rounded-lg text-sm text-muted-foreground
+              transition-all duration-200 ease-out
+              hover:bg-accent hover:text-accent-foreground
+              hover:scale-[1.02] active:scale-[0.98]
+              ${sidebarCollapsed ? 'mx-auto h-10 w-10 justify-center p-0' : 'h-9 gap-3 px-3'}
+            `}
+          >
+            {sidebarCollapsed ? (
+              <PanelLeftOpen className="h-[18px] w-[18px] transition-transform duration-300 group-hover:translate-x-0.5" />
+            ) : (
+              <>
+                <PanelLeftClose className="h-[18px] w-[18px] transition-transform duration-300 group-hover:-translate-x-0.5" />
+                <span className="truncate">Свернуть</span>
+              </>
+            )}
+          </button>
+
+          {/* Version info */}
+          <div
+            className={`
+              mt-2 overflow-hidden transition-all duration-300 ease-out
+              ${sidebarCollapsed ? 'h-0 opacity-0' : 'h-auto opacity-100'}
+            `}
+          >
+            <p className="px-3 pb-1 text-[11px] leading-tight text-muted-foreground/70">
+              Группа компаний «Стэк»
+            </p>
+            <p className="px-3 pb-1 text-[11px] leading-tight text-muted-foreground/70">
+              Версия прототипа 1.0
+            </p>
+          </div>
         </div>
       </aside>
 
-      {/* Main area */}
-      <div className="flex flex-1 flex-col overflow-hidden">
+      {/* ===== MAIN AREA ===== */}
+      <div className="flex flex-1 flex-col overflow-hidden transition-all duration-300 ease-out">
         {/* Top header */}
         <header className="flex h-14 items-center gap-4 border-b bg-white px-4 lg:px-6">
+          {/* Mobile menu button */}
           <button
-            className="lg:hidden"
-            onClick={() => setSidebarOpen(true)}
+            className="transition-transform duration-200 hover:scale-110 active:scale-95 lg:hidden"
+            onClick={() => setMobileOpen(true)}
           >
             <Menu className="h-5 w-5" />
+          </button>
+
+          {/* Desktop sidebar toggle when collapsed */}
+          <button
+            className={`hidden h-8 w-8 items-center justify-center rounded-md transition-all duration-200
+              hover:bg-accent hover:scale-110 active:scale-95
+              ${sidebarCollapsed ? 'lg:flex' : 'lg:hidden'}`}
+            onClick={toggleSidebar}
+            title="Развернуть панель"
+          >
+            <ChevronRight className="h-4 w-4" />
           </button>
 
           <div className="hidden md:block">
@@ -165,7 +303,7 @@ export default function AppShell() {
           </div>
 
           <Select value={currentOrgId} onValueChange={setCurrentOrgId}>
-            <SelectTrigger className="w-[260px]">
+            <SelectTrigger className="w-[260px] transition-all duration-200 hover:shadow-sm focus:shadow-md">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -180,10 +318,18 @@ export default function AppShell() {
           <div className="ml-auto flex items-center gap-3">
             <Separator orientation="vertical" className="h-6 hidden sm:block" />
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
+              <div
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-medium
+                  text-primary-foreground transition-all duration-200 hover:scale-110 hover:shadow-md
+                  hover:shadow-primary/25"
+              >
                 АИ
               </div>
-              <span className="hidden text-sm font-medium sm:inline-block">
+              <span
+                className={`hidden text-sm font-medium transition-all duration-300 sm:inline-block ${
+                  sidebarCollapsed ? 'lg:opacity-0 lg:w-0 lg:overflow-hidden' : 'lg:opacity-100 lg:w-auto'
+                }`}
+              >
                 Иванова А.А.
               </span>
             </div>

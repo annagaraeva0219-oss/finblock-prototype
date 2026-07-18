@@ -30,6 +30,7 @@ interface AppState {
   currentScreen: string
   selectedRequestId: string | null
   currentOrgId: string
+  sidebarCollapsed: boolean
 
   // Data
   organizations: Organization[]
@@ -46,6 +47,7 @@ interface AppState {
   setCurrentScreen: (screen: string) => void
   setSelectedRequestId: (id: string | null) => void
   setCurrentOrgId: (id: string) => void
+  toggleSidebar: () => void
 
   addInvoice: (data: Omit<Invoice, 'id' | 'status' | 'linkedRequestId'>) => string
   addPaymentRequest: (data: Omit<PaymentRequest, 'id' | 'number' | 'date' | 'approvalHistory'>) => string
@@ -70,6 +72,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   currentScreen: 'dashboard',
   selectedRequestId: null,
   currentOrgId: 'org-1',
+  sidebarCollapsed: false,
 
   organizations: orgs,
   counterparties: cps,
@@ -84,6 +87,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   setCurrentScreen: (screen) => set({ currentScreen: screen, selectedRequestId: null }),
   setSelectedRequestId: (id) => set({ selectedRequestId: id }),
   setCurrentOrgId: (id) => set({ currentOrgId: id }),
+  toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
 
   addInvoice: (data) => {
     invoiceCounter++
